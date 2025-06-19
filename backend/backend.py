@@ -106,6 +106,7 @@ class MarketDataSimulator:
     async def broadcast_data(self, data):
         """Send data to all connected clients"""
         if self.clients:
+            print(f"📤 Sending to {len(self.clients)} clients: {json.dumps(data)}")
             # Create a copy of clients to avoid modification during iteration
             clients_copy = self.clients.copy()
             disconnected_clients = []
@@ -114,7 +115,8 @@ class MarketDataSimulator:
                 try:
                     print(f"Broadcasting to {len(self.clients)} clients: {data}")
 
-                    await client.send(json.dumps(data))
+                    await client.send_str(json.dumps(data))
+
                 except (ConnectionClosedError, ConnectionClosedOK, websockets.exceptions.ConnectionClosed):
                     # Mark for removal
                     disconnected_clients.append(client)
