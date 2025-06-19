@@ -58,6 +58,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { RefreshCw, TrendingUp, Plus, Eye, Search, X, Star, Clock } from 'lucide-react';
 import Header from '@/components/Header';
 import Design2 from '@/components/Design2';
+import OrderBookTable from '@/components/OrderBookTable';
 
 // // Header Component
 // const Header = () => {
@@ -142,6 +143,10 @@ const SymbolSelector = ({ selectedSymbol, onSymbolChange, onRefresh, isLoading }
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
+  
+  // Default values for optional props
+  onRefresh = onRefresh || (() => console.log('Refresh not implemented'));
+  isLoading = isLoading || false;
 
   const popularSymbols = [
     { symbol: 'AAPL', name: 'Apple Inc.', trend: 'up' },
@@ -586,91 +591,6 @@ const ExchangeFeedViewer = ({ feedMessages }) => {
   );
 };
 
-// Order Book Table Component
-const OrderBookTable = ({ orderBook, selectedSymbol, isLoading }) => {
-  if (!selectedSymbol) {
-    return (
-      <div className="bg-[#2a2d31] rounded-xl shadow-sm border border-gray-800 p-6 h-full">
-        <h2 className="text-lg font-semibold text-white mb-4">Consolidated Order Book</h2>
-        <div className="text-center py-8 text-gray-400">
-          Select a symbol to view order book data
-        </div>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="bg-[#2a2d31] rounded-xl shadow-sm border border-gray-800 p-6">
-        <h2 className="text-lg font-semibold text-white mb-4">
-          Consolidated Order Book - {selectedSymbol}
-        </h2>
-        <div className="text-center py-8">
-          <RefreshCw className="h-8 w-8 animate-spin text-blue-400 mx-auto mb-2" />
-          <div className="text-gray-400">Loading order book...</div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="bg-[#2a2d31] rounded-xl shadow-sm border border-gray-800 p-6">
-      <h2 className="text-lg font-semibold text-white mb-4">
-        Consolidated Order Book - {selectedSymbol}
-      </h2>
-      <div className="overflow-x-auto rounded-xl">
-        <table className="min-w-full divide-y divide-gray-800">
-          <thead className="bg-[#1b1d21]">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                Level
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                Bid Price
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                Bid Size
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                Ask Price
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                Ask Size
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-800">
-            {orderBook.map((level, index) => (
-              <tr key={index} className={index % 2 === 0 ? "bg-[#232529]" : "bg-[#1b1d21]"}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
-                  {index}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-green-400 font-mono">
-                  ${level.bidPrice?.toFixed(2) || '-'}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-mono">
-                  {level.bidSize?.toLocaleString() || '-'}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-red-400 font-mono">
-                  ${level.askPrice?.toFixed(2) || '-'}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-mono">
-                  {level.askSize?.toLocaleString() || '-'}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {orderBook.length === 0 && (
-        <div className="text-center py-8 text-gray-400">
-          No order book data available for {selectedSymbol}
-        </div>
-      )}
-    </div>
-  );
-};
-
 // Screenshots Placeholder Component
 const ScreenshotsPlaceholder = () => {
   return (
@@ -692,44 +612,8 @@ const ScreenshotsPlaceholder = () => {
 // Main Dashboard Component
 const Dashboard = () => {
   const [selectedSymbol, setSelectedSymbol] = useState('');
-  const [orderBook, setOrderBook] = useState([]);
   const [feedMessages, setFeedMessages] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-
-  // Generate mock order book data
-  const generateMockOrderBook = (symbol) => {
-    const basePrice = Math.random() * 200 + 100; // Random price between 100-300
-    return Array.from({ length: 5 }, (_, i) => ({
-      bidPrice: basePrice - (i * 0.1) - Math.random() * 0.05,
-      bidSize: Math.floor(Math.random() * 10000) + 1000,
-      askPrice: basePrice + (i * 0.1) + Math.random() * 0.05,
-      askSize: Math.floor(Math.random() * 10000) + 1000,
-    }));
-  };
-
-  // Fetch order book data
-  const fetchOrderBook = async (symbol) => {
-    if (!symbol) return;
-
-    setIsLoading(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // In real implementation, this would be:
-      // const response = await fetch(`/api/order-book/${symbol}`);
-      // const data = await response.json();
-
-      const mockData = generateMockOrderBook(symbol);
-      setOrderBook(mockData);
-    } catch (error) {
-      console.error('Error fetching order book:', error);
-      setOrderBook([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   // Submit feed message
   const submitFeedMessage = async (feedData) => {
@@ -755,13 +639,6 @@ const Dashboard = () => {
     }
   };
 
-  // Auto refresh order book when symbol changes
-  useEffect(() => {
-    if (selectedSymbol) {
-      fetchOrderBook(selectedSymbol);
-    }
-  }, [selectedSymbol]);
-
   return (
     <div className="min-h-screen bg-[#121417]">
       <Header isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
@@ -774,16 +651,12 @@ const Dashboard = () => {
             <SymbolSelector
               selectedSymbol={selectedSymbol}
               onSymbolChange={setSelectedSymbol}
-              onRefresh={() => fetchOrderBook(selectedSymbol)}
-              isLoading={isLoading}
             />
             </div>
             <div className="flex-1 p-4 overflow-y-auto">
             {/* Order Book Table */}
             <OrderBookTable
-              orderBook={orderBook}
               selectedSymbol={selectedSymbol}
-              isLoading={isLoading}
             />
             </div>
           </div>
