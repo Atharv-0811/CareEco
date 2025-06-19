@@ -1,4 +1,3 @@
-# test_ws_client.py
 import asyncio
 import websockets
 

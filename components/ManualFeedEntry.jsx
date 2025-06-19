@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { Plus } from 'lucide-react';
 
-// Manual Feed Entry Component
 const ManualFeedEntry = ({ onSubmitFeed }) => {
   const [feedData, setFeedData] = useState({
     messageType: 'NEW_ORDER',
@@ -19,7 +18,6 @@ const ManualFeedEntry = ({ onSubmitFeed }) => {
     setIsSubmitting(true);
     try {
       await onSubmitFeed(feedData);
-      // Reset form after successful submission
       setFeedData({
         messageType: 'NEW_ORDER',
         symbol: '',
@@ -99,7 +97,6 @@ const ManualFeedEntry = ({ onSubmitFeed }) => {
             </div>
           </div>
 
-          {/* Side & Price Row */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-text">

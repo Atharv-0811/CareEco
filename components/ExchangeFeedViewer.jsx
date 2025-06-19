@@ -2,7 +2,6 @@
 import React from 'react';
 import { Eye } from 'lucide-react';
 
-// Exchange Feed Viewer Component
 const ExchangeFeedViewer = ({ feedMessages }) => {
   const exchanges = ['EX1', 'EX2', 'EX3'];
 

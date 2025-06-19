@@ -2,8 +2,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, RefreshCw, TrendingUp, Clock, X, Star } from 'lucide-react';
 
-
-// Symbol Selector Component
 const SymbolSelector = ({ selectedSymbol, onSymbolChange, onRefresh, isLoading }) => {
   const [query, setQuery] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -13,7 +11,6 @@ const SymbolSelector = ({ selectedSymbol, onSymbolChange, onRefresh, isLoading }
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Default values for optional props
   onRefresh = onRefresh || (() => console.log('Refresh not implemented'));
   isLoading = isLoading || false;
 
@@ -41,7 +38,6 @@ const SymbolSelector = ({ selectedSymbol, onSymbolChange, onRefresh, isLoading }
     setIsDropdownOpen(false);
     setFocusedIndex(-1);
 
-    // Add to recent symbols
     const newRecent = [symbol, ...recentSymbols.filter(s => s !== symbol)].slice(0, 5);
     setRecentSymbols(newRecent);
   };
@@ -101,7 +97,6 @@ const SymbolSelector = ({ selectedSymbol, onSymbolChange, onRefresh, isLoading }
     }
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {

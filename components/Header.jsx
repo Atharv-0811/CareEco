@@ -1,9 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp, Activity, TrendingUp, TrendingDown, Search, Settings, Bell, User } from 'lucide-react';
 
-// Header Component with expandable top bar
 const Header = ({ isExpanded, setIsExpanded }) => {
   return (
     <div className={`bg-[#333] text-white transition-all duration-500 ease-in-out rounded-bl-xl rounded-br-xl ${

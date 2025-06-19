@@ -1,61 +1,7 @@
-// 'use client';
-
-// import React, { useState, useEffect } from 'react';
-// import { ChevronDown, ChevronUp, Activity, TrendingUp, TrendingDown, Search, Settings, Bell, User } from 'lucide-react';
-// import TopBar from '@/components/TopBar';
-// import FilterControls from '@/components/FilterControls';
-// import QuickStats from '@/components/QuickStats';
-// import ExchangeStatus from '@/components/ExchangeStatus';
-// import ActivityFeed from '@/components/ActivityFeed';
-
-// // Main Dashboard Component
-// const Dashboard = () => {
-//   const [isExpanded, setIsExpanded] = useState(false);
-
-//   return (
-//     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-//       <TopBar isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
-
-//       <div className={`transition-all duration-500 ease-in-out ${isExpanded ? 'pt-4' : 'pt-8'}`}>
-//         <div className="max-w-7xl mx-auto px-6">
-//           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-//             <div className="lg:col-span-1">
-//               <FilterControls />
-//             </div>
-//             <div className="lg:col-span-1">
-//               <QuickStats />
-//             </div>
-//             <div className="lg:col-span-1">
-//               <ExchangeStatus />
-//             </div>
-//             <div className="lg:col-span-1">
-//               <ActivityFeed />
-//             </div>
-//           </div>
-
-//           {/* Placeholder for future components */}
-//           <div className="mt-8 bg-white/50 backdrop-blur-sm rounded-xl p-8 border border-white/20">
-//             <div className="text-center">
-//               <Activity className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-//               <h3 className="text-xl font-semibold text-gray-700 mb-2">Market Data Visualization Area</h3>
-//               <p className="text-gray-500">
-//                 This space is ready for your consolidated order book, price charts, and real-time market data displays.
-//               </p>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Dashboard;
-
 'use client';
 
 import '../app/globals.css';
-import React, { useState, useEffect, useRef } from 'react';
-import { RefreshCw, TrendingUp, Plus, Eye, Search, X, Star, Clock } from 'lucide-react';
+import React, { useState } from 'react';
 import Header from '@/components/Header';
 import OrderBookTable from '@/components/OrderBookTable';
 import DepthCharts from '@/components/DepthChart';
@@ -63,15 +9,12 @@ import ManualFeedEntry from '@/components/ManualFeedEntry';
 import SymbolSelector from '@/components/SymbolSelector';
 import ExchangeFeedViewer from '@/components/ExchangeFeedViewer';
 
-
-
 // Main Dashboard Component
 const Dashboard = () => {
   const [selectedSymbol, setSelectedSymbol] = useState('');
   const [feedMessages, setFeedMessages] = useState([]);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Submit feed message
   const submitFeedMessage = async (feedData) => {
     try {
       // await fetch('/api/feed', {
@@ -80,7 +23,6 @@ const Dashboard = () => {
       //   body: JSON.stringify(feedData)
       // });
 
-      // Add to local feed messages for demo
       const newMessage = {
         ...feedData,
         exchange: ['EX1', 'EX2', 'EX3'][Math.floor(Math.random() * 3)],

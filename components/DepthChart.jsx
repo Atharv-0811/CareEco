@@ -92,12 +92,12 @@ const generateOrderBookData = (priceRange) => {
 
     const bids = Array.from({ length: 10 }, (_, i) => ({
         price: (midPrice - spread * (i + 1)).toFixed(2),
-        size: Math.random() * 100 + i * 100, // Variation of 100 units, range 0-1000
+        size: Math.random() * 100 + i * 100, 
     }));
 
     const asks = Array.from({ length: 10 }, (_, i) => ({
         price: (midPrice + spread * (i + 1)).toFixed(2),
-        size: Math.random() * 100 + i * 100, // Variation of 100 units, range 0-1000
+        size: Math.random() * 100 + i * 100, 
     }));
 
     return { bids, asks };
@@ -124,7 +124,7 @@ const DepthCharts = () => {
         <div className="container mx-auto p-4 pb-12">
             {/* <h1 className="text-4xl font-bold mb-4 text-center -mt-4 pb-8">Stock Depth Charts</h1> */}
             <div className="flex flex-col lg:flex-row gap-4">
-                {/* Left side: Large AMZN graph */}
+                {/* Left side: Large graph */}
                 <div className="lg:w-2/5 border rounded-lg p-4 shadow-md flex-grow">
                     <h2 className="text-lg font-semibold mb-2">AMZN</h2>
                     {orderBooks['AMZN'] ? (
@@ -136,7 +136,6 @@ const DepthCharts = () => {
                     ) : (
                         <p>Loading...</p>
                     )}
-                    {/* Replaced h1 tag with new content */}
                     <div className="mt-4 p-8">
                         <h3 className="text-xl font-semibold mb-2 pb-3">About AMZN</h3>
                         <p className="text-white/70 mb-3 pb-4">
