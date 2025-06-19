@@ -295,7 +295,7 @@ const OrderBookTable = ({ selectedSymbol }) => {
     setError(null);
 
     try {
-      wsRef.current = new WebSocket('ws://localhost:8765');
+      wsRef.current = new WebSocket(process.env.NEXT_PUBLIC_BACKEND_URL);
 
       wsRef.current.onopen = () => {
         console.log('WebSocket connection established');
