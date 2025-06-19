@@ -4,6 +4,7 @@ import json
 import random
 import time
 from typing import Dict, List
+from aiohttp import web
 
 # Your existing client code
 async def receive_data():
@@ -167,7 +168,24 @@ async def start_server():
         server.close()
         await server.wait_closed()
 
+# Add simple HTTP health check handler
+async def handle_health(request):
+    return web.Response(text="OK")
+
+async def start_http_server():
+    app = web.Application()
+    app.add_routes([web.get("/", handle_health)])
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", 8080) 
+    await site.start()
+    print("HTTP health check server running on http://0.0.0.0:8080")
+
 # ============ MAIN EXECUTION ============
+
+async def main():
+    await start_http_server()
+    await start_server() 
 
 if __name__ == "__main__":        
 
