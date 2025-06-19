@@ -23,7 +23,7 @@
 //         wsRef.current.close();
 //       }
 //     }
-    
+
 //     return () => {
 //       if (wsRef.current) {
 //         wsRef.current.close();
@@ -35,13 +35,13 @@
 //     if (wsRef.current) {
 //       wsRef.current.close();
 //     }
-    
+
 //     setIsLoading(true);
 //     setError(null);
-    
+
 //     try {
 //       wsRef.current = new WebSocket('ws://localhost:8765');
-      
+
 //       wsRef.current.onopen = () => {
 //         console.log('WebSocket connection established');
 //         // No need to send a request as the server broadcasts data automatically
@@ -83,7 +83,7 @@
 //       wsRef.current.onclose = (event) => {
 //         console.log('WebSocket connection closed:', event.code, event.reason);
 //         setIsLoading(false);
-        
+
 //         // Try to reconnect after a delay if the connection was closed unexpectedly
 //         if (event.code !== 1000) { // 1000 is normal closure
 //           setTimeout(() => {
@@ -297,6 +297,7 @@ const OrderBookTable = ({ selectedSymbol }) => {
     try {
       wsRef.current = new WebSocket(process.env.NEXT_PUBLIC_BACKEND_URL);
 
+
       wsRef.current.onopen = () => {
         console.log('WebSocket connection established');
       };
@@ -332,8 +333,8 @@ const OrderBookTable = ({ selectedSymbol }) => {
             } else {
               console.warn(
                 `Discarded data for ${selectedSymbol} with out-of-range prices: ` +
-                  `bid=${data.bid_price} (range: ${minPrice}–${maxPrice}), ` +
-                  `ask=${data.ask_price} (range: ${minPrice}–${maxPriceWithSpread})`
+                `bid=${data.bid_price} (range: ${minPrice}–${maxPrice}), ` +
+                `ask=${data.ask_price} (range: ${minPrice}–${maxPriceWithSpread})`
               );
             }
           } else {

@@ -11,7 +11,7 @@ from websockets.exceptions import ConnectionClosedError, ConnectionClosedOK
 # Your existing client code (for testing locally)
 async def receive_data():
     try:
-        async with websockets.connect("ws://localhost:8765") as websocket:
+        async with websockets.connect("ws://localhost:8765/ws") as websocket:
             while True:
                 message = await websocket.recv()
                 data = json.loads(message)
@@ -112,6 +112,8 @@ class MarketDataSimulator:
             
             for client in clients_copy:
                 try:
+                    print(f"Broadcasting to {len(self.clients)} clients: {data}")
+
                     await client.send(json.dumps(data))
                 except (ConnectionClosedError, ConnectionClosedOK, websockets.exceptions.ConnectionClosed):
                     # Mark for removal
@@ -128,6 +130,8 @@ class MarketDataSimulator:
         """Continuously generate and broadcast market data"""
         while True:
             try:
+                print("⏳ Generating market data...")
+
                 # Generate random data
                 market_data = self.generate_market_data()
                 
