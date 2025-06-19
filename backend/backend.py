@@ -234,25 +234,10 @@ async def start_servers():
     site = web.TCPSite(runner, "0.0.0.0", port)
     await site.start()
     print(f"HTTP server running on http://0.0.0.0:{port}")
-    
-    # Start WebSocket server on different port (for direct WS connections)
-    # Only start this if not in production (Render might not support multiple ports)
-    ws_port = port + 1 if port != 8080 else 8765
-    
-    try:
-        # Try to start standalone WebSocket server
-        ws_server = await websockets.serve(
-            handle_websocket_client, 
-            "0.0.0.0", 
-            ws_port,
-            ping_interval=20,
-            ping_timeout=20
-        )
-        print(f"WebSocket server running on ws://0.0.0.0:{ws_port}")
-    except Exception as e:
-        print(f"Could not start standalone WebSocket server: {e}")
-        print("WebSocket connections available via HTTP at /ws endpoint")
-        ws_server = None
+
+    # Commenting out raw WebSocket server:
+    ws_server = None
+    print("Running only aiohttp WebSocket server on /ws")
     
     # Start the data generator
     data_task = asyncio.create_task(simulator.data_generator())
