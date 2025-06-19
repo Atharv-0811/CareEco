@@ -210,8 +210,7 @@ async def create_app():
     # Add routes
     app.add_routes([
         web.get("/", handle_root),
-        web.get("/health", handle_health),
-        web.head("/health", handle_health),  # For health checks
+        web.get("/health", handle_health),  # HEAD is automatically handled by aiohttp
         web.get("/ws", handle_websocket_http),  # WebSocket via HTTP
     ])
     
