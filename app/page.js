@@ -59,6 +59,8 @@ import { RefreshCw, TrendingUp, Plus, Eye, Search, X, Star, Clock } from 'lucide
 import Header from '@/components/Header';
 import Design2 from '@/components/Design2';
 import OrderBookTable from '@/components/OrderBookTable';
+import DepthChart from '@/components/DepthChart';
+import DepthCharts from '@/components/DepthChart';
 
 // // Header Component
 // const Header = () => {
@@ -143,7 +145,7 @@ const SymbolSelector = ({ selectedSymbol, onSymbolChange, onRefresh, isLoading }
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
-  
+
   // Default values for optional props
   onRefresh = onRefresh || (() => console.log('Refresh not implemented'));
   isLoading = isLoading || false;
@@ -246,7 +248,7 @@ const SymbolSelector = ({ selectedSymbol, onSymbolChange, onRefresh, isLoading }
   }, []);
 
   return (
-    <div className="bg-[#2a2d31] rounded-xl shadow-lg p-6 max-w-sm backdrop-blur-sm h-full">
+    <div className="bg-[#1b1d21] rounded-xl shadow-lg p-6 max-w-sm backdrop-blur-sm h-full border border-gray-300">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold text-white flex items-center gap-2">
           <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
@@ -290,8 +292,8 @@ const SymbolSelector = ({ selectedSymbol, onSymbolChange, onRefresh, isLoading }
                       key={item.symbol}
                       onClick={() => handleSymbolSelect(item.symbol)}
                       className={`w-full text-left px-4 py-3 flex items-center justify-between group transition-all duration-150 ${index === focusedIndex
-                          ? 'bg-blue-50 border-l-4 border-blue-500'
-                          : 'hover:bg-gray-50'
+                        ? 'bg-blue-50 border-l-4 border-blue-500'
+                        : 'hover:bg-gray-50'
                         }`}
                     >
                       <div className="flex items-center gap-3">
@@ -307,8 +309,8 @@ const SymbolSelector = ({ selectedSymbol, onSymbolChange, onRefresh, isLoading }
                       >
                         <Star
                           className={`h-4 w-4 ${favorites.includes(item.symbol)
-                              ? 'fill-yellow-400 text-yellow-400'
-                              : 'text-gray-400 hover:text-yellow-400'
+                            ? 'fill-yellow-400 text-yellow-400'
+                            : 'text-gray-400 hover:text-yellow-400'
                             }`}
                         />
                       </button>
@@ -398,7 +400,7 @@ const SymbolSelector = ({ selectedSymbol, onSymbolChange, onRefresh, isLoading }
         <button
           onClick={onRefresh}
           disabled={isLoading || !selectedSymbol}
-          className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed flex items-center space-x-2 transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg disabled:shadow-none"
+          className="px-6 py-3 bg-gradient-to-r from-blue-600/70 to-blue-600/70 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed flex items-center space-x-2 transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg disabled:shadow-none"
         >
           <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
           <span className="font-medium">
@@ -421,6 +423,7 @@ const ManualFeedEntry = ({ onSubmitFeed }) => {
     orderId: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [focusedField, setFocusedField] = useState(null);
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -442,103 +445,199 @@ const ManualFeedEntry = ({ onSubmitFeed }) => {
     }
   };
 
+  const isFormValid = feedData.symbol && feedData.price && feedData.quantity && feedData.orderId;
+
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div className="flex items-center space-x-2 mb-4">
-        <Plus className="h-5 w-5 text-gray-600" />
-        <h2 className="text-lg font-semibold text-gray-900">Manual Feed Entry</h2>
-      </div>
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Message Type
-            </label>
-            <select
-              value={feedData.messageType}
-              onChange={(e) => setFeedData({ ...feedData, messageType: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="NEW_ORDER">NEW_ORDER</option>
-              <option value="MODIFY_ORDER">MODIFY_ORDER</option>
-              <option value="CANCEL_ORDER">CANCEL_ORDER</option>
-            </select>
+    <div className="bg-[#1b1d21] rounded-xl border border-border shadow-2xl backdrop-blur-sm">
+      {/* Header Section */}
+      <div className="border-b border-border bg-gradient-to-r from-surface to-accent2 rounded-t-xl p-6">
+        <div className="flex items-center space-x-3">
+          <div className="p-2 bg-primary/20 rounded-lg">
+            <Plus className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Symbol
-            </label>
-            <input
-              type="text"
-              value={feedData.symbol}
-              onChange={(e) => setFeedData({ ...feedData, symbol: e.target.value.toUpperCase() })}
-              placeholder="AAPL"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Side
-            </label>
-            <select
-              value={feedData.side}
-              onChange={(e) => setFeedData({ ...feedData, side: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="BUY">BUY</option>
-              <option value="SELL">SELL</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Price
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={feedData.price}
-              onChange={(e) => setFeedData({ ...feedData, price: e.target.value })}
-              placeholder="150.25"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Quantity
-            </label>
-            <input
-              type="number"
-              value={feedData.quantity}
-              onChange={(e) => setFeedData({ ...feedData, quantity: e.target.value })}
-              placeholder="100"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Order ID
-            </label>
-            <input
-              type="text"
-              value={feedData.orderId}
-              onChange={(e) => setFeedData({ ...feedData, orderId: e.target.value })}
-              placeholder="ORD12345"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
+            <h2 className="text-xl font-bold text-white">Manual Feed Entry</h2>
+            <p className="text-sm text-gray-300">Submit trading orders directly to the feed</p>
           </div>
         </div>
-        <button
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-          className="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-        >
-          <Plus className={`h-4 w-4 ${isSubmitting ? 'animate-spin' : ''}`} />
-          <span>{isSubmitting ? 'Submitting...' : 'Submit Feed Message'}</span>
-        </button>
+      </div>
+
+      {/* Form Section */}
+      <div className="p-8">
+        <div className="space-y-6">
+          {/* Message Type & Symbol Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-text">
+                Message Type
+                <span className="text-primary ml-1">*</span>
+              </label>
+              <div className="relative">
+                <select
+                  value={feedData.messageType}
+                  onChange={(e) => setFeedData({ ...feedData, messageType: e.target.value })}
+                  className="w-full px-4 py-3 bg-[#1a1d21] border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-text text-gray-300 appearance-none cursor-pointer transition-all duration-200 hover:border-primary/50"
+                >
+                  <option value="NEW_ORDER">NEW ORDER</option>
+                  <option value="MODIFY_ORDER">MODIFY ORDER</option>
+                  <option value="CANCEL_ORDER">CANCEL ORDER</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <svg className="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-text">
+                Symbol
+                <span className="text-primary ml-1">*</span>
+              </label>
+              <input
+                type="text"
+                value={feedData.symbol}
+                onChange={(e) => setFeedData({ ...feedData, symbol: e.target.value.toUpperCase() })}
+                onFocus={() => setFocusedField('symbol')}
+                onBlur={() => setFocusedField(null)}
+                placeholder="AAPL"
+                className={`w-full px-4 py-3 bg-surface border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-text placeholder-muted transition-all duration-200 hover:border-primary/50 ${focusedField === 'symbol' ? 'border-primary' : 'border-border'
+                  }`}
+                required
+              />
+            </div>
+          </div>
+
+          {/* Side & Price Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-text">
+                Side
+                <span className="text-primary ml-1">*</span>
+              </label>
+              <div className="flex bg-surface border border-border rounded-lg p-1">
+                <button
+                  type="button"
+                  onClick={() => setFeedData({ ...feedData, side: 'BUY' })}
+                  className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-[#326b21] ${feedData.side === 'BUY'
+                      ? 'bg-[#1b1] text-white shadow-lg'
+                      : 'text-muted hover:text-text hover:bg-accent'
+                    }`}
+                >
+                  BUY
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFeedData({ ...feedData, side: 'SELL' })}
+                  className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 bg-[#ea3322] hover:bg-[#a33424] ${feedData.side === 'SELL'
+                      ? 'bg-danger text-white shadow-lg'
+                      : 'text-muted hover:text-text hover:bg-accent'
+                    }`}
+                >
+                  SELL
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-text">
+                Price
+                <span className="text-primary ml-1">*</span>
+              </label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted text-sm">$</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={feedData.price}
+                  onChange={(e) => setFeedData({ ...feedData, price: e.target.value })}
+                  onFocus={() => setFocusedField('price')}
+                  onBlur={() => setFocusedField(null)}
+                  placeholder="150.25"
+                  className={`w-full pl-8 pr-4 py-3 bg-surface border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-text placeholder-muted transition-all duration-200 hover:border-primary/50 ${focusedField === 'price' ? 'border-primary' : 'border-border'
+                    }`}
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Quantity & Order ID Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-text">
+                Quantity
+                <span className="text-primary ml-1">*</span>
+              </label>
+              <input
+                type="number"
+                value={feedData.quantity}
+                onChange={(e) => setFeedData({ ...feedData, quantity: e.target.value })}
+                onFocus={() => setFocusedField('quantity')}
+                onBlur={() => setFocusedField(null)}
+                placeholder="100"
+                className={`w-full px-4 py-3 bg-surface border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-text placeholder-muted transition-all duration-200 hover:border-primary/50 ${focusedField === 'quantity' ? 'border-primary' : 'border-border'
+                  }`}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-text">
+                Order ID
+                <span className="text-primary ml-1">*</span>
+              </label>
+              <input
+                type="text"
+                value={feedData.orderId}
+                onChange={(e) => setFeedData({ ...feedData, orderId: e.target.value })}
+                onFocus={() => setFocusedField('orderId')}
+                onBlur={() => setFocusedField(null)}
+                placeholder="ORD12345"
+                className={`w-full px-4 py-3 bg-surface border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-text placeholder-muted transition-all duration-200 hover:border-primary/50 ${focusedField === 'orderId' ? 'border-primary' : 'border-border'
+                  }`}
+                required
+              />
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <div className="pt-4">
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitting || !isFormValid}
+              className={`w-full px-6 py-4 rounded-lg font-semibold text-white transition-all duration-300 transform flex items-center justify-center space-x-3 ${isSubmitting || !isFormValid
+                  ? 'bg-gray-600 cursor-not-allowed opacity-50'
+                  : 'bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+                }`}
+            >
+              <div className={`${isSubmitting ? 'animate-spin' : ''}`}>
+                {isSubmitting ? (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                ) : (
+                  <Plus className="w-5 h-5" />
+                )}
+              </div>
+              <span className="text-lg">
+                {isSubmitting ? 'Submitting Feed...' : 'Submit Feed Message'}
+              </span>
+            </button>
+          </div>
+
+          {/* Form Status Indicator */}
+          {!isFormValid && (
+            <div className="flex items-center space-x-2 text-sm text-muted bg-accent/30 rounded-lg p-3">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Please fill in all required fields to submit</span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -554,12 +653,16 @@ const ExchangeFeedViewer = ({ feedMessages }) => {
   }, {});
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div className="flex items-center space-x-2 mb-4">
+    <div className="bg-[#1b1d21] rounded-lg shadow-sm border border-gray-200 p-6">
+
+      <div className="flex items-center space-x-2">
         <Eye className="h-5 w-5 text-gray-600" />
-        <h2 className="text-lg font-semibold text-gray-900">Exchange Feed Viewer</h2>
+        <h2 className="text-xl font-semibold text-white pl-2">Exchange Feed Viewer</h2>
+        
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <p className='text-sm text-gray-300 pl-9'>view exchange feed information.</p>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-8">
         {exchanges.map(exchange => (
           <div key={exchange} className="border border-gray-200 rounded-lg p-4">
             <h3 className="font-medium text-gray-900 mb-3 text-center bg-gray-50 py-2 rounded">
@@ -584,24 +687,6 @@ const ExchangeFeedViewer = ({ feedMessages }) => {
                 </div>
               )}
             </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-// Screenshots Placeholder Component
-const ScreenshotsPlaceholder = () => {
-  return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Screenshots & Documentation</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {[1, 2, 3, 4].map(i => (
-          <div key={i} className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-            <div className="text-gray-400 mb-2">📸</div>
-            <div className="text-sm text-gray-500">Screenshot Placeholder {i}</div>
-            <div className="text-xs text-gray-400 mt-1">Add screenshots for report documentation</div>
           </div>
         ))}
       </div>
@@ -644,32 +729,49 @@ const Dashboard = () => {
       <Header isExpanded={isExpanded} setIsExpanded={setIsExpanded} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="text-center py-8">
+          <h1 className="text-4xl font-bold text-white mb-4">🏦 One Big Exchange – Consolidated Market Depth Engine</h1>
+          <p className="text-lg text-gray-400">Track. Merge. Serve.<br />Build a unified, real-time view of market depth across multiple exchanges.</p>
+        </div>
+
         <div className="space-y-8">
           <div className="flex flex-col md:flex-row h-full">
             {/* Symbol Selector */}
             <div className="w-full md:w-1/3 lg:w-1/4 p-4 overflow-y-auto">
-            <SymbolSelector
-              selectedSymbol={selectedSymbol}
-              onSymbolChange={setSelectedSymbol}
-            />
+              <SymbolSelector
+                selectedSymbol={selectedSymbol}
+                onSymbolChange={setSelectedSymbol}
+              />
             </div>
             <div className="flex-1 p-4 overflow-y-auto">
-            {/* Order Book Table */}
-            <OrderBookTable
-              selectedSymbol={selectedSymbol}
-            />
+              {/* Order Book Table */}
+              <OrderBookTable
+                selectedSymbol={selectedSymbol}
+              />
             </div>
           </div>
 
+          {/* Divider before Depth Charts */}
+          <div className="relative my-8 p-8">
+            <hr className="border-t border-gray-600" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="bg-[#121417] px-4 text-3xl text-gray-400 font-semibold uppercase tracking-wider">Market Depth Insights</span>
+            </div>
+          </div>
+
+          <DepthCharts />
+
           {/* Feed Entry and Viewer */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          <div className="relative my-8">
+            <hr className="border-t border-gray-600" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="bg-[#121417] px-4 text-3xl text-gray-400 font-semibold uppercase tracking-wider">Feed Management</span>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 pt-12">
             <ManualFeedEntry onSubmitFeed={submitFeedMessage} />
             <ExchangeFeedViewer feedMessages={feedMessages} />
           </div>
-
-          {/* Screenshots Placeholder */}
-          <ScreenshotsPlaceholder />
-          <Design2 />
         </div>
       </main>
     </div>

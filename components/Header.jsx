@@ -50,7 +50,7 @@ const Header = ({ isExpanded, setIsExpanded }) => {
       }`}>
         <div className="px-6 py-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <SystemStat title="System Status" value="Operational" status="healthy" />
+            <SystemStat title="Market Status" value="Open" status="healthy" />
             <SystemStat title="Total Latency" value="1.2ms" status="good" />
             <SystemStat title="Data Quality" value="99.9%" status="excellent" />
           </div>

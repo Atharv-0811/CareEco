@@ -122,8 +122,8 @@ class MarketDataSimulator:
                 # Broadcast to all connected clients
                 await self.broadcast_data(market_data)
                 
-                # Random interval between 0.5 to 3 seconds
-                await asyncio.sleep(random.uniform(0.5, 3.0))
+                # Random interval between 0.2 to 0.5 seconds
+                await asyncio.sleep(random.uniform(0.2, 0.5))
                 
             except Exception as e:
                 print(f"Error in data generation: {e}")
