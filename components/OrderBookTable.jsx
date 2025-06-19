@@ -491,7 +491,7 @@ const OrderBookTable = ({ selectedSymbol }) => {
         Consolidated Order Book - {selectedSymbol}
       </h2>
       <div className="overflow-x-auto rounded-xl">
-        <table className="min-w-full divide-y divide-gray-800">
+        <table className="min-w-full divide-y divide-gray-800 ">
           <thead className="bg-[#1b1d21]">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">

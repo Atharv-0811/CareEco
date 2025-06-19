@@ -20,8 +20,8 @@ const Header = ({ isExpanded, setIsExpanded }) => {
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
             <TrendingUp className="w-8 h-8 text-blue-400" />
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-blue-400 bg-clip-text text-transparent">
-              One Big Exchange
+            <h1 className="text-3xl font-bold bg-blue-300 bg-clip-text text-transparent">
+              OBE
             </h1>
           </div>
         </div>
