@@ -169,19 +169,8 @@ async def start_server():
 
 # ============ MAIN EXECUTION ============
 
-if __name__ == "__main__":
-    print("Market Data Simulator")
-    print("Choose mode:")
-    print("1. Run as SERVER (generates and sends data)")
-    print("2. Run as CLIENT (receives data)")
-    
-    mode = input("Enter choice (1 or 2): ").strip()
-    
-    if mode == "1":
-        # Run as server
-        asyncio.run(start_server())
-    elif mode == "2":
-        # Run as client (your existing code)
-        asyncio.run(receive_data())
-    else:
-        print("Invalid choice. Please run again and choose 1 or 2.")
+if __name__ == "__main__":        
+
+    asyncio.run(start_server())
+
+    # asyncio.run(receive_data())
