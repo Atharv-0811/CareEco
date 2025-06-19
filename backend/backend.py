@@ -3,15 +3,17 @@ import websockets
 import json
 import random
 import time
+import os
 from typing import Dict, List
 from aiohttp import web
+from websockets.exceptions import ConnectionClosedError, ConnectionClosedOK
 
-# Your existing client code
+# Your existing client code (for testing locally)
 async def receive_data():
     try:
         async with websockets.connect("ws://localhost:8765") as websocket:
             while True:
-                message = await websocket.recv()  # Receive data from server
+                message = await websocket.recv()
                 data = json.loads(message)
                 print(f"Received from {data['exchange']} at {data['timestamp']}:")
                 print(f"Symbol: {data['data']['symbol']}, "
@@ -106,12 +108,21 @@ class MarketDataSimulator:
         if self.clients:
             # Create a copy of clients to avoid modification during iteration
             clients_copy = self.clients.copy()
+            disconnected_clients = []
+            
             for client in clients_copy:
                 try:
                     await client.send(json.dumps(data))
-                except websockets.exceptions.ConnectionClosed:
-                    # Remove disconnected clients
-                    self.clients.discard(client)
+                except (ConnectionClosedError, ConnectionClosedOK, websockets.exceptions.ConnectionClosed):
+                    # Mark for removal
+                    disconnected_clients.append(client)
+                except Exception as e:
+                    print(f"Error sending data to client: {e}")
+                    disconnected_clients.append(client)
+            
+            # Remove disconnected clients
+            for client in disconnected_clients:
+                self.clients.discard(client)
     
     async def data_generator(self):
         """Continuously generate and broadcast market data"""
@@ -133,7 +144,7 @@ class MarketDataSimulator:
 # Global simulator instance
 simulator = MarketDataSimulator()
 
-async def handle_client(websocket):
+async def handle_websocket_client(websocket, path):
     """Handle WebSocket client connections"""
     await simulator.register_client(websocket)
     try:
@@ -141,54 +152,141 @@ async def handle_client(websocket):
         async for message in websocket:
             # Echo back any received messages (optional)
             print(f"Received message from client: {message}")
-    except websockets.exceptions.ConnectionClosed:
-        pass
+    except (ConnectionClosedError, ConnectionClosedOK, websockets.exceptions.ConnectionClosed):
+        print("Client connection closed normally")
+    except Exception as e:
+        print(f"Error handling websocket client: {e}")
     finally:
         await simulator.unregister_client(websocket)
 
-async def start_server():
-    """Start the WebSocket server"""
-    print("Starting WebSocket server on ws://localhost:8765")
+# HTTP handlers for health checks
+async def handle_health(request):
+    """Health check endpoint for Render.com"""
+    return web.Response(
+        text=json.dumps({
+            "status": "healthy",
+            "connected_clients": len(simulator.clients),
+            "timestamp": time.time()
+        }),
+        content_type="application/json"
+    )
+
+async def handle_root(request):
+    """Root endpoint"""
+    return web.Response(
+        text=json.dumps({
+            "service": "Market Data WebSocket Server",
+            "status": "running",
+            "websocket_url": f"ws://{request.host}/ws",
+            "connected_clients": len(simulator.clients)
+        }),
+        content_type="application/json"
+    )
+
+async def handle_websocket_http(request):
+    """Handle WebSocket upgrade requests via HTTP"""
+    ws = web.WebSocketResponse()
+    await ws.prepare(request)
     
-    # Start the server
-    server = await websockets.serve(handle_client, "0.0.0.0", 8765)
+    await simulator.register_client(ws)
+    try:
+        async for msg in ws:
+            if msg.type == web.MsgType.TEXT:
+                print(f"Received message from HTTP WebSocket client: {msg.data}")
+            elif msg.type == web.MsgType.ERROR:
+                print(f'WebSocket error: {ws.exception()}')
+                break
+    except Exception as e:
+        print(f"Error in HTTP WebSocket handler: {e}")
+    finally:
+        await simulator.unregister_client(ws)
+    
+    return ws
+
+async def create_app():
+    """Create the HTTP application"""
+    app = web.Application()
+    
+    # Add routes
+    app.add_routes([
+        web.get("/", handle_root),
+        web.get("/health", handle_health),
+        web.head("/health", handle_health),  # For health checks
+        web.get("/ws", handle_websocket_http),  # WebSocket via HTTP
+    ])
+    
+    return app
+
+async def start_servers():
+    """Start both HTTP and WebSocket servers"""
+    # Get port from environment (Render.com sets PORT)
+    port = int(os.environ.get("PORT", 8080))
+    
+    # Create HTTP app
+    app = await create_app()
+    
+    # Start HTTP server
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+    print(f"HTTP server running on http://0.0.0.0:{port}")
+    
+    # Start WebSocket server on different port (for direct WS connections)
+    # Only start this if not in production (Render might not support multiple ports)
+    ws_port = port + 1 if port != 8080 else 8765
+    
+    try:
+        # Try to start standalone WebSocket server
+        ws_server = await websockets.serve(
+            handle_websocket_client, 
+            "0.0.0.0", 
+            ws_port,
+            ping_interval=20,
+            ping_timeout=20
+        )
+        print(f"WebSocket server running on ws://0.0.0.0:{ws_port}")
+    except Exception as e:
+        print(f"Could not start standalone WebSocket server: {e}")
+        print("WebSocket connections available via HTTP at /ws endpoint")
+        ws_server = None
     
     # Start the data generator
     data_task = asyncio.create_task(simulator.data_generator())
     
-    print("Server started! Clients can connect to ws://localhost:8765")
+    print("Server started!")
+    print(f"Health check: http://0.0.0.0:{port}/health")
+    print(f"WebSocket via HTTP: ws://0.0.0.0:{port}/ws")
+    if ws_server:
+        print(f"Direct WebSocket: ws://0.0.0.0:{ws_port}")
     print("Press Ctrl+C to stop the server")
     
     try:
-        # Keep server running
-        await server.wait_closed()
+        # Keep servers running
+        if ws_server:
+            await ws_server.wait_closed()
+        else:
+            # If no WebSocket server, just keep the main loop running
+            while True:
+                await asyncio.sleep(1)
     except KeyboardInterrupt:
-        print("\nShutting down server...")
+        print("\nShutting down servers...")
         data_task.cancel()
-        server.close()
-        await server.wait_closed()
-
-# Add simple HTTP health check handler
-async def handle_health(request):
-    return web.Response(text="OK")
-
-async def start_http_server():
-    app = web.Application()
-    app.add_routes([web.get("/", handle_health)])
-    runner = web.AppRunner(app)
-    await runner.setup()
-    site = web.TCPSite(runner, "0.0.0.0", 8080) 
-    await site.start()
-    print("HTTP health check server running on http://0.0.0.0:8080")
+        if ws_server:
+            ws_server.close()
+            await ws_server.wait_closed()
+        await runner.cleanup()
 
 # ============ MAIN EXECUTION ============
 
 async def main():
-    await start_http_server()
-    await start_server() 
+    """Main entry point"""
+    await start_servers()
 
-if __name__ == "__main__":        
-
-    asyncio.run(start_server())
-
-    # asyncio.run(receive_data())
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("Server stopped by user")
+    except Exception as e:
+        print(f"Server error: {e}")
