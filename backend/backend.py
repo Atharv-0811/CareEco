@@ -150,7 +150,7 @@ async def start_server():
     print("Starting WebSocket server on ws://localhost:8765")
     
     # Start the server
-    server = await websockets.serve(handle_client, "localhost", 8765)
+    server = await websockets.serve(handle_client, "0.0.0.0", 8765)
     
     # Start the data generator
     data_task = asyncio.create_task(simulator.data_generator())
