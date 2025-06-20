@@ -1,4 +1,5 @@
 import asyncio
+import aiohttp_cors
 import websockets
 import json
 import random
@@ -212,14 +213,33 @@ async def handle_websocket_http(request):
 async def create_app():
     """Create the HTTP application"""
     app = web.Application()
-    
+
     # Add routes
     app.add_routes([
         web.get("/", handle_root),
-        web.get("/health", handle_health),  # HEAD is automatically handled by aiohttp
-        web.get("/ws", handle_websocket_http),  # WebSocket via HTTP
+        web.get("/health", handle_health),
+        web.get("/ws", handle_websocket_http),
     ])
-    
+
+    # Set up CORS
+    cors = aiohttp_cors.setup(app, defaults={
+        "https://one-big-exchange-two.vercel.app": aiohttp_cors.ResourceOptions(
+            allow_credentials=True,
+            expose_headers="*",
+            allow_headers="*",
+        ),
+        # Also allow localhost for dev (optional)
+        "http://localhost:3000": aiohttp_cors.ResourceOptions(
+            allow_credentials=True,
+            expose_headers="*",
+            allow_headers="*",
+        )
+    })
+
+    # Apply CORS to all routes
+    for route in list(app.router.routes()):
+        cors.add(route)
+
     return app
 
 async def start_servers():
