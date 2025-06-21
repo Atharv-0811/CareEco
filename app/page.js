@@ -94,6 +94,16 @@ const Dashboard = () => {
             <ExchangeFeedViewer feedMessages={feedMessages} />
           </div>
         </div>
+
+        {/* Updated Website Information */}
+        <div className="text-center py-8 bg-gray-800 rounded-lg shadow-lg">
+          <p className="text-white text-lg font-bold">
+            🚀 Visit the updated version of this dashboard at: <a href="https://one-big-exchange-user.onrender.com/" className="text-blue-400 underline">https://one-big-exchange-user.onrender.com/</a>
+          </p>
+          <p className="text-gray-300 text-sm mt-2">
+            ⚠️ Note: Due to shared resources for backend deployment, the servers may need to be restarted, which could cause delays in displaying the latest changes.
+          </p>
+        </div>
       </main>
     </div>
   );
